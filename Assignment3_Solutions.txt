@@ -1,0 +1,611 @@
+================================================================================
+ASSIGNMENT - 3 (09-03-2026) : JAVA LAB-READY SOLUTIONS
+================================================================================
+Note: Each program is a complete standalone class. In the exam, rename the
+public class to match your filename (e.g. Q1.java for class Q1), or just copy
+the main() body into your answer file. Scanner is used wherever user input
+makes sense; otherwise fixed ranges are used as per the question.
+================================================================================
+
+
+---- Q1: Print numbers from 10 to 110 ----
+import java.util.*;
+public class Q1 {
+    public static void main(String[] args) {
+        for (int i = 10; i <= 110; i++) {
+            System.out.print(i + " ");
+        }
+    }
+}
+
+
+---- Q2: Sum of all numbers from 1 to 100 ----
+public class Q2 {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i <= 100; i++) sum += i;
+        System.out.println("Sum = " + sum);
+    }
+}
+
+
+---- Q3: Multiplication table of a given number ----
+import java.util.*;
+public class Q3 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(n + " x " + i + " = " + (n * i));
+        }
+    }
+}
+
+
+---- Q4: Factorial of a given number ----
+import java.util.*;
+public class Q4 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        long fact = 1;
+        for (int i = 1; i <= n; i++) fact *= i;
+        System.out.println("Factorial = " + fact);
+    }
+}
+
+
+---- Q5: Check if a given number is prime ----
+import java.util.*;
+public class Q5 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        boolean isPrime = n > 1;
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) { isPrime = false; break; }
+        }
+        System.out.println(n + (isPrime ? " is Prime" : " is Not Prime"));
+    }
+}
+
+
+---- Q6: Fibonacci series up to a given number of terms ----
+import java.util.*;
+public class Q6 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of terms: ");
+        int n = sc.nextInt();
+        long a = 0, b = 1;
+        for (int i = 1; i <= n; i++) {
+            System.out.print(a + " ");
+            long next = a + b;
+            a = b;
+            b = next;
+        }
+    }
+}
+
+
+---- Q7: Sum of digits of a given number ----
+import java.util.*;
+public class Q7 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int sum = 0;
+        while (n != 0) {
+            sum += n % 10;
+            n /= 10;
+        }
+        System.out.println("Sum of digits = " + sum);
+    }
+}
+
+
+---- Q8: Check if a given number is a palindrome ----
+import java.util.*;
+public class Q8 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int original = n, reversed = 0;
+        while (n != 0) {
+            reversed = reversed * 10 + n % 10;
+            n /= 10;
+        }
+        System.out.println(original == reversed ? "Palindrome" : "Not Palindrome");
+    }
+}
+
+
+---- Q9 & Q25: Sum of all odd numbers between 1 and 50 ----
+public class Q9 {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i <= 50; i++) {
+            if (i % 2 != 0) sum += i;
+        }
+        System.out.println("Sum of odd numbers = " + sum);
+    }
+}
+
+
+---- Q10: Sum of all even numbers between 1 and 50 ----
+public class Q10 {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i <= 50; i++) {
+            if (i % 2 == 0) sum += i;
+        }
+        System.out.println("Sum of even numbers = " + sum);
+    }
+}
+
+
+---- Q11: Check if a given number is Armstrong ----
+import java.util.*;
+public class Q11 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int original = n, digits = String.valueOf(n).length(), sum = 0;
+        while (n != 0) {
+            int d = n % 10;
+            sum += Math.pow(d, digits);
+            n /= 10;
+        }
+        System.out.println(original == sum ? "Armstrong Number" : "Not Armstrong Number");
+    }
+}
+
+
+---- Q12: Reverse a given number ----
+import java.util.*;
+public class Q12 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int reversed = 0;
+        while (n != 0) {
+            reversed = reversed * 10 + n % 10;
+            n /= 10;
+        }
+        System.out.println("Reversed number = " + reversed);
+    }
+}
+
+
+---- Q13: Power of a number using a loop ----
+import java.util.*;
+public class Q13 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter base: ");
+        int base = sc.nextInt();
+        System.out.print("Enter exponent: ");
+        int exp = sc.nextInt();
+        long result = 1;
+        for (int i = 1; i <= exp; i++) result *= base;
+        System.out.println("Power = " + result);
+    }
+}
+
+
+---- Q14: GCD of two numbers ----
+import java.util.*;
+public class Q14 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter two numbers: ");
+        int a = sc.nextInt(), b = sc.nextInt();
+        int x = a, y = b;
+        while (y != 0) {
+            int temp = y;
+            y = x % y;
+            x = temp;
+        }
+        System.out.println("GCD = " + x);
+    }
+}
+
+
+---- Q15: Check if a given string is a palindrome ----
+import java.util.*;
+public class Q15 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter string: ");
+        String s = sc.nextLine();
+        String reversed = new StringBuilder(s).reverse().toString();
+        System.out.println(s.equalsIgnoreCase(reversed) ? "Palindrome" : "Not Palindrome");
+    }
+}
+
+
+---- Q16: ASCII values of all lowercase alphabets ----
+public class Q16 {
+    public static void main(String[] args) {
+        for (char c = 'a'; c <= 'z'; c++) {
+            System.out.println(c + " = " + (int) c);
+        }
+    }
+}
+
+
+---- Q17: Average of a list of numbers ----
+import java.util.*;
+public class Q17 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter count of numbers: ");
+        int n = sc.nextInt();
+        double sum = 0;
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter number " + (i + 1) + ": ");
+            sum += sc.nextDouble();
+        }
+        System.out.println("Average = " + (sum / n));
+    }
+}
+
+
+---- Q18: Check if a given year is a leap year ----
+import java.util.*;
+public class Q18 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter year: ");
+        int year = sc.nextInt();
+        boolean leap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+        System.out.println(year + (leap ? " is a Leap Year" : " is Not a Leap Year"));
+    }
+}
+
+
+---- Q19: Print first 10 natural numbers in reverse order ----
+public class Q19 {
+    public static void main(String[] args) {
+        for (int i = 10; i >= 1; i--) {
+            System.out.print(i + " ");
+        }
+    }
+}
+
+
+---- Q20: Sum of the first 50 natural numbers ----
+public class Q20 {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i <= 50; i++) sum += i;
+        System.out.println("Sum = " + sum);
+    }
+}
+
+
+---- Q21 & Q33: Factorial of numbers from 1 to 10 ----
+public class Q21 {
+    public static void main(String[] args) {
+        for (int n = 1; n <= 10; n++) {
+            long fact = 1;
+            for (int i = 1; i <= n; i++) fact *= i;
+            System.out.println(n + "! = " + fact);
+        }
+    }
+}
+
+
+---- Q22: Check if a given string is a palindrome using a loop ----
+import java.util.*;
+public class Q22 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter string: ");
+        String s = sc.nextLine().toLowerCase();
+        int left = 0, right = s.length() - 1;
+        boolean isPalindrome = true;
+        while (left < right) {
+            if (s.charAt(left) != s.charAt(right)) {
+                isPalindrome = false;
+                break;
+            }
+            left++;
+            right--;
+        }
+        System.out.println(isPalindrome ? "Palindrome" : "Not Palindrome");
+    }
+}
+
+
+---- Q23: Sum of the squares of numbers from 1 to 10 ----
+public class Q23 {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i <= 10; i++) sum += i * i;
+        System.out.println("Sum of squares = " + sum);
+    }
+}
+
+
+---- Q24: Print the even numbers between 1 and 100 ----
+public class Q24 {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 100; i++) {
+            if (i % 2 == 0) System.out.print(i + " ");
+        }
+    }
+}
+
+
+---- Q26: Check if a given number is a perfect number ----
+import java.util.*;
+public class Q26 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int sum = 0;
+        for (int i = 1; i < n; i++) {
+            if (n % i == 0) sum += i;
+        }
+        System.out.println(sum == n ? "Perfect Number" : "Not a Perfect Number");
+    }
+}
+
+
+---- Q27: ASCII values of all uppercase alphabets ----
+public class Q27 {
+    public static void main(String[] args) {
+        for (char c = 'A'; c <= 'Z'; c++) {
+            System.out.println(c + " = " + (int) c);
+        }
+    }
+}
+
+
+---- Q28: Product of the digits of a given number ----
+import java.util.*;
+public class Q28 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        long product = 1;
+        while (n != 0) {
+            product *= (n % 10);
+            n /= 10;
+        }
+        System.out.println("Product of digits = " + product);
+    }
+}
+
+
+---- Q29: Check if a given number is a strong number ----
+// Strong number: sum of factorial of digits == the number itself (e.g. 145)
+import java.util.*;
+public class Q29 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int original = n, sum = 0;
+        while (n != 0) {
+            int d = n % 10;
+            long fact = 1;
+            for (int i = 1; i <= d; i++) fact *= i;
+            sum += fact;
+            n /= 10;
+        }
+        System.out.println(sum == original ? "Strong Number" : "Not a Strong Number");
+    }
+}
+
+
+---- Q30: Sum of the cubes of numbers from 1 to 10 ----
+public class Q30 {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i <= 10; i++) sum += i * i * i;
+        System.out.println("Sum of cubes = " + sum);
+    }
+}
+
+
+---- Q31: Sum of all prime numbers between 1 and 100 ----
+public class Q31 {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int n = 2; n <= 100; n++) {
+            boolean isPrime = true;
+            for (int i = 2; i * i <= n; i++) {
+                if (n % i == 0) { isPrime = false; break; }
+            }
+            if (isPrime) sum += n;
+        }
+        System.out.println("Sum of primes = " + sum);
+    }
+}
+
+
+---- Q32: Check if a given string is a pangram ----
+// Pangram: contains every letter of the alphabet at least once
+import java.util.*;
+public class Q32 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter string: ");
+        String s = sc.nextLine().toLowerCase();
+        boolean[] seen = new boolean[26];
+        for (char c : s.toCharArray()) {
+            if (c >= 'a' && c <= 'z') seen[c - 'a'] = true;
+        }
+        boolean isPangram = true;
+        for (boolean b : seen) {
+            if (!b) { isPangram = false; break; }
+        }
+        System.out.println(isPangram ? "Pangram" : "Not a Pangram");
+    }
+}
+
+
+---- Q34: Print the odd numbers between 1 and 100 ----
+public class Q34 {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 100; i++) {
+            if (i % 2 != 0) System.out.print(i + " ");
+        }
+    }
+}
+
+
+---- Q35: Check if a given number is a perfect square ----
+import java.util.*;
+public class Q35 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int sqrt = (int) Math.sqrt(n);
+        System.out.println((sqrt * sqrt == n) ? "Perfect Square" : "Not a Perfect Square");
+    }
+}
+
+
+---- Q36: Sum of digits of a number until the sum is a single digit ----
+// Also called "digital root"
+import java.util.*;
+public class Q36 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        while (n >= 10) {
+            int sum = 0;
+            while (n != 0) {
+                sum += n % 10;
+                n /= 10;
+            }
+            n = sum;
+        }
+        System.out.println("Single digit sum = " + n);
+    }
+}
+
+
+---- Q37: Pattern printing (8-10 common patterns) ----
+public class Q37 {
+    public static void main(String[] args) {
+        int n = 5;
+
+        // 1. Right-angled triangle
+        System.out.println("1. Right-Angled Triangle:");
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= i; j++) System.out.print("* ");
+            System.out.println();
+        }
+
+        // 2. Inverted right-angled triangle
+        System.out.println("\n2. Inverted Right-Angled Triangle:");
+        for (int i = n; i >= 1; i--) {
+            for (int j = 1; j <= i; j++) System.out.print("* ");
+            System.out.println();
+        }
+
+        // 3. Pyramid
+        System.out.println("\n3. Pyramid:");
+        for (int i = 1; i <= n; i++) {
+            for (int s = 1; s <= n - i; s++) System.out.print("  ");
+            for (int j = 1; j <= (2 * i - 1); j++) System.out.print("* ");
+            System.out.println();
+        }
+
+        // 4. Inverted Pyramid
+        System.out.println("\n4. Inverted Pyramid:");
+        for (int i = n; i >= 1; i--) {
+            for (int s = 1; s <= n - i; s++) System.out.print("  ");
+            for (int j = 1; j <= (2 * i - 1); j++) System.out.print("* ");
+            System.out.println();
+        }
+
+        // 5. Diamond
+        System.out.println("\n5. Diamond:");
+        for (int i = 1; i <= n; i++) {
+            for (int s = 1; s <= n - i; s++) System.out.print("  ");
+            for (int j = 1; j <= (2 * i - 1); j++) System.out.print("* ");
+            System.out.println();
+        }
+        for (int i = n - 1; i >= 1; i--) {
+            for (int s = 1; s <= n - i; s++) System.out.print("  ");
+            for (int j = 1; j <= (2 * i - 1); j++) System.out.print("* ");
+            System.out.println();
+        }
+
+        // 6. Hollow Square
+        System.out.println("\n6. Hollow Square:");
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (i == 1 || i == n || j == 1 || j == n) System.out.print("* ");
+                else System.out.print("  ");
+            }
+            System.out.println();
+        }
+
+        // 7. Hollow Right-Angled Triangle
+        System.out.println("\n7. Hollow Right-Angled Triangle:");
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= i; j++) {
+                if (j == 1 || j == i || i == n) System.out.print("* ");
+                else System.out.print("  ");
+            }
+            System.out.println();
+        }
+
+        // 8. Hollow Diamond
+        System.out.println("\n8. Hollow Diamond:");
+        for (int i = 1; i <= n; i++) {
+            for (int s = 1; s <= n - i; s++) System.out.print("  ");
+            for (int j = 1; j <= (2 * i - 1); j++) {
+                if (j == 1 || j == (2 * i - 1)) System.out.print("* ");
+                else System.out.print("  ");
+            }
+            System.out.println();
+        }
+        for (int i = n - 1; i >= 1; i--) {
+            for (int s = 1; s <= n - i; s++) System.out.print("  ");
+            for (int j = 1; j <= (2 * i - 1); j++) {
+                if (j == 1 || j == (2 * i - 1)) System.out.print("* ");
+                else System.out.print("  ");
+            }
+            System.out.println();
+        }
+
+        // 9. Pascal's Triangle (numbers)
+        System.out.println("\n9. Pascal's Triangle:");
+        for (int i = 0; i < n; i++) {
+            int val = 1;
+            for (int s = 0; s < n - i; s++) System.out.print("  ");
+            for (int j = 0; j <= i; j++) {
+                System.out.print(val + " ");
+                val = val * (i - j) / (j + 1);
+            }
+            System.out.println();
+        }
+
+        // 10. Number Pyramid
+        System.out.println("\n10. Number Pyramid:");
+        for (int i = 1; i <= n; i++) {
+            for (int s = 1; s <= n - i; s++) System.out.print("  ");
+            for (int j = 1; j <= i; j++) System.out.print(j + " ");
+            for (int j = i - 1; j >= 1; j--) System.out.print(j + " ");
+            System.out.println();
+        }
+    }
+}
