@@ -1,0 +1,382 @@
+================================================================================
+CDAC PGCP - CORE JAVA LAB EXAM PRACTICE PROGRAMS
+================================================================================
+
+
+################################################################################
+# PROGRAM 1: Multithreaded Java Program
+# (Fibonacci Generator + Even-Odd Separator + Digit Sum Finder Threads)
+################################################################################
+
+import java.util.*;
+
+public class MultiThreadDemo {
+
+    // a) Fibonacci Generator Thread
+    static class FibonacciThread extends Thread {
+        public void run() {
+            Random rand = new Random();
+            int n = rand.nextInt(41) + 10; // between 10 and 50
+            long[] fib = new long[n];
+            fib[0] = 0;
+            if (n > 1) fib[1] = 1;
+            for (int i = 2; i < n; i++) fib[i] = fib[i - 1] + fib[i - 2];
+
+            long sum = 0;
+            for (long f : fib) sum += f;
+
+            System.out.println("\n[Fibonacci Thread] Terms: " + n);
+            System.out.println("Sequence: " + Arrays.toString(fib));
+            System.out.println("Sum of terms: " + sum);
+        }
+    }
+
+    // b) Even-Odd Separator Thread
+    static class EvenOddThread extends Thread {
+        public void run() {
+            Random rand = new Random();
+            List<Integer> even = new ArrayList<>();
+            List<Integer> odd = new ArrayList<>();
+
+            for (int i = 0; i < 50; i++) {
+                int num = rand.nextInt(200) + 1; // 1 to 200
+                if (num % 2 == 0) even.add(num);
+                else odd.add(num);
+            }
+            Collections.sort(even);
+            Collections.sort(odd);
+
+            System.out.println("\n[Even-Odd Thread]");
+            System.out.println("Even numbers (" + even.size() + "): " + even);
+            System.out.println("Odd numbers (" + odd.size() + "): " + odd);
+        }
+    }
+
+    // c) Digit Sum Finder Thread
+    static class DigitSumThread extends Thread {
+        public void run() {
+            Random rand = new Random();
+            List<Integer> matched = new ArrayList<>();
+
+            for (int i = 0; i < 40; i++) {
+                int num = rand.nextInt(9990) + 10; // 10 to 9999
+                if (digitSum(num) == 10) matched.add(num);
+            }
+
+            System.out.println("\n[Digit Sum Thread]");
+            System.out.println("Numbers with digit sum = 10: " + matched);
+            System.out.println("Total count: " + matched.size());
+        }
+
+        private int digitSum(int num) {
+            int sum = 0;
+            while (num > 0) {
+                sum += num % 10;
+                num /= 10;
+            }
+            return sum;
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Thread t1 = new FibonacciThread();
+        Thread t2 = new EvenOddThread();
+        Thread t3 = new DigitSumThread();
+
+        t1.start();
+        t1.join(); // join used so output doesn't interleave; remove joins if true concurrency needed
+        t2.start();
+        t2.join();
+        t3.start();
+        t3.join();
+    }
+}
+
+
+################################################################################
+# PROGRAM 2: File Analysis + Student Management (Serialization)
+################################################################################
+
+import java.io.*;
+import java.util.*;
+
+public class FileAndStudentDemo {
+
+    // ---------- Student class for Part b) ----------
+    static class Student implements Serializable {
+        private static final long serialVersionUID = 1L;
+        String rollNo;
+        String name;
+        String branch;
+        transient double cgpa; // transient => NOT serialized
+
+        Student(String rollNo, String name, String branch, double cgpa) {
+            this.rollNo = rollNo;
+            this.name = name;
+            this.branch = branch;
+            this.cgpa = cgpa;
+        }
+
+        public String toString() {
+            return "RollNo: " + rollNo + ", Name: " + name +
+                   ", Branch: " + branch + ", CGPA: " + cgpa;
+        }
+    }
+
+    // ---------- a) File Analysis ----------
+    static void fileAnalysis(String sourceFilePath) throws IOException {
+        int lines = 0, words = 0, chars = 0;
+        Map<String, Integer> freq = new HashMap<>();
+
+        BufferedReader br = new BufferedReader(new FileReader(sourceFilePath));
+        String line;
+        while ((line = br.readLine()) != null) {
+            lines++;
+            chars += line.length();
+            String[] tokens = line.trim().split("\\s+");
+            for (String w : tokens) {
+                if (w.isEmpty()) continue;
+                words++;
+                w = w.toLowerCase();
+                freq.put(w, freq.getOrDefault(w, 0) + 1);
+            }
+        }
+        br.close();
+
+        String mostFrequent = "";
+        int maxCount = 0;
+        for (Map.Entry<String, Integer> e : freq.entrySet()) {
+            if (e.getValue() > maxCount) {
+                maxCount = e.getValue();
+                mostFrequent = e.getKey();
+            }
+        }
+
+        BufferedWriter bw = new BufferedWriter(new FileWriter("report.txt"));
+        bw.write("Total lines: " + lines + "\n");
+        bw.write("Total words: " + words + "\n");
+        bw.write("Total characters: " + chars + "\n");
+        bw.write("Most frequent word: " + mostFrequent + " (" + maxCount + " times)\n");
+        bw.close();
+
+        System.out.println("File analysis written to report.txt");
+        System.out.println("Lines=" + lines + " Words=" + words + " Chars=" + chars);
+        System.out.println("Most frequent word: " + mostFrequent + " -> " + maxCount);
+    }
+
+    // ---------- b) Student Management: serialize / deserialize ----------
+    static void studentManagement() throws IOException, ClassNotFoundException {
+        List<Student> students = new ArrayList<>();
+        students.add(new Student("01", "Amit", "CSE", 8.9));
+        students.add(new Student("02", "Priya", "ECE", 9.1));
+        students.add(new Student("03", "Rahul", "IT", 7.8));
+        students.add(new Student("04", "Sneha", "CSE", 8.4));
+        students.add(new Student("05", "Karan", "ME", 7.2));
+
+        // Serialize
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("students.ser"));
+        oos.writeObject(students);
+        oos.close();
+        System.out.println("\nStudent list serialized to students.ser");
+
+        // Deserialize
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("students.ser"));
+        List<Student> loaded = (List<Student>) ois.readObject();
+        ois.close();
+
+        System.out.println("Deserialized students (note cgpa is 0.0 since it's transient):");
+        for (Student s : loaded) System.out.println(s);
+    }
+
+    public static void main(String[] args) throws Exception {
+        // Pass the path of THIS .java source file to analyze itself
+        fileAnalysis("FileAndStudentDemo.java");
+        studentManagement();
+    }
+}
+
+
+################################################################################
+# PROGRAM 3: Library Fine Management System (Custom Exception)
+################################################################################
+
+import java.util.*;
+
+public class LibraryFineDemo {
+
+    // Custom exception
+    static class FineOverdueException extends Exception {
+        FineOverdueException(String message) {
+            super(message);
+        }
+    }
+
+    static class Address {
+        String street, city, state, pinCode;
+
+        Address(String street, String city, String state, String pinCode) {
+            this.street = street;
+            this.city = city;
+            this.state = state;
+            this.pinCode = pinCode;
+        }
+
+        public String toString() {
+            return street + ", " + city + ", " + state + " - " + pinCode;
+        }
+    }
+
+    static class LibraryCard {
+        String cardId;
+        double fineBalance;
+
+        LibraryCard(String cardId, double fineBalance) {
+            this.cardId = cardId;
+            this.fineBalance = fineBalance;
+        }
+
+        void addFine(double amount) {
+            fineBalance += amount;
+        }
+
+        // Throws FineOverdueException if payment amount is less than current balance
+        void payFine(double amount) throws FineOverdueException {
+            if (amount < fineBalance) {
+                throw new FineOverdueException(
+                    "Payment of Rs." + amount + " is less than outstanding fine of Rs." + fineBalance);
+            }
+            fineBalance -= amount;
+        }
+
+        double getFineBalance() {
+            return fineBalance;
+        }
+    }
+
+    static class Member {
+        String memberId, name;
+        LibraryCard libraryCard;
+        Address address;
+
+        Member(String memberId, String name, LibraryCard libraryCard, Address address) {
+            this.memberId = memberId;
+            this.name = name;
+            this.libraryCard = libraryCard;
+            this.address = address;
+        }
+
+        void displayDetails() {
+            System.out.println("Member ID: " + memberId);
+            System.out.println("Name: " + name);
+            System.out.println("Card ID: " + libraryCard.cardId);
+            System.out.println("Fine Balance: Rs." + libraryCard.getFineBalance());
+            System.out.println("Address: " + address);
+            System.out.println("------------------------------");
+        }
+    }
+
+    public static void main(String[] args) {
+        Address a1 = new Address("MG Road", "Hyderabad", "Telangana", "500001");
+        Address a2 = new Address("Baner Road", "Pune", "Maharashtra", "411045");
+
+        Member m1 = new Member("M001", "Ravi Kumar", new LibraryCard("C001", 0), a1);
+        Member m2 = new Member("M002", "Anjali Verma", new LibraryCard("C002", 0), a2);
+
+        m1.libraryCard.addFine(150);
+        m2.libraryCard.addFine(300);
+
+        // Successful payment (amount >= balance)
+        try {
+            System.out.println("Attempting successful payment for " + m1.name + "...");
+            m1.libraryCard.payFine(150);
+            System.out.println("Payment successful. Remaining balance: Rs." + m1.libraryCard.getFineBalance());
+        } catch (FineOverdueException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        // Failed payment (amount < balance) -> triggers exception
+        try {
+            System.out.println("\nAttempting failed payment for " + m2.name + "...");
+            m2.libraryCard.payFine(100); // less than 300 balance
+            System.out.println("Payment successful. Remaining balance: Rs." + m2.libraryCard.getFineBalance());
+        } catch (FineOverdueException e) {
+            System.out.println("Payment failed: " + e.getMessage());
+        }
+
+        System.out.println("\n=== Member Details ===");
+        m1.displayDetails();
+        m2.displayDetails();
+    }
+}
+
+
+################################################################################
+# PROGRAM 4: E-commerce Product Catalogue (Java Streams)
+################################################################################
+
+import java.util.*;
+import java.util.stream.*;
+
+public class ProductCatalogue {
+
+    static class Product {
+        int productId;
+        String name, category, brand;
+        double price;
+
+        Product(int productId, String name, String category, String brand, double price) {
+            this.productId = productId;
+            this.name = name;
+            this.category = category;
+            this.brand = brand;
+            this.price = price;
+        }
+
+        public String toString() {
+            return name + " (" + category + ", " + brand + ") - Rs." + price;
+        }
+    }
+
+    public static void main(String[] args) {
+        List<Product> products = new ArrayList<>();
+        products.add(new Product(1, "iPhone 15", "Electronics", "Apple", 79999));
+        products.add(new Product(2, "Samsung TV", "Electronics", "Samsung", 45000));
+        products.add(new Product(3, "Bluetooth Speaker", "Electronics", "JBL", 3500));
+        products.add(new Product(4, "Denim Jacket", "Clothing", "Levis", 3200));
+        products.add(new Product(5, "Running Shoes", "Clothing", "Nike", 5500));
+        products.add(new Product(6, "Cotton T-Shirt", "Clothing", "H&M", 900));
+        products.add(new Product(7, "Java Programming", "Books", "O'Reilly", 850));
+        products.add(new Product(8, "Data Structures", "Books", "Pearson", 650));
+        products.add(new Product(9, "Design Patterns", "Books", "Addison-Wesley", 1200));
+        products.add(new Product(10, "Laptop", "Electronics", "Dell", 60000));
+
+        // a) Average price of products in each category
+        System.out.println("=== a) Average Price per Category ===");
+        Map<String, Double> avgByCategory = products.stream()
+                .collect(Collectors.groupingBy(p -> p.category, Collectors.averagingDouble(p -> p.price)));
+        avgByCategory.forEach((cat, avg) -> System.out.printf("%s: Rs.%.2f%n", cat, avg));
+
+        // b) Sort all products alphabetically by name
+        System.out.println("\n=== b) Products Sorted by Name ===");
+        products.stream()
+                .sorted(Comparator.comparing(p -> p.name))
+                .forEach(System.out::println);
+
+        // c) Top 3 most expensive products
+        System.out.println("\n=== c) Top 3 Most Expensive Products ===");
+        products.stream()
+                .sorted((p1, p2) -> Double.compare(p2.price, p1.price))
+                .limit(3)
+                .forEach(System.out::println);
+
+        // d) Display products priced > 5000 grouped by category
+        System.out.println("\n=== d) Products Priced > Rs.5000, Grouped by Category ===");
+        Map<String, List<Product>> expensiveByCategory = products.stream()
+                .filter(p -> p.price > 5000)
+                .collect(Collectors.groupingBy(p -> p.category));
+        expensiveByCategory.forEach((cat, list) -> {
+            System.out.println(cat + ":");
+            for (Product p : list) System.out.println("   " + p);
+        });
+    }
+}
