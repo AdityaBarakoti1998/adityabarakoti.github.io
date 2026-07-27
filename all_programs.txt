@@ -97,18 +97,21 @@ public class MultiThreadDemo {
 # PROGRAM 2: File Analysis + Student Management (Serialization)
 ################################################################################
 
+package JavaSEApp;
+
 import java.io.*;
 import java.util.*;
 
-public class FileAndStudentDemo {
+public class ad {
 
-    // ---------- Student class for Part b) ----------
+    // ---------- Student class ----------
     static class Student implements Serializable {
         private static final long serialVersionUID = 1L;
+
         String rollNo;
         String name;
         String branch;
-        transient double cgpa; // transient => NOT serialized
+        transient double cgpa; // Will not be serialized
 
         Student(String rollNo, String name, String branch, double cgpa) {
             this.rollNo = rollNo;
@@ -117,81 +120,137 @@ public class FileAndStudentDemo {
             this.cgpa = cgpa;
         }
 
+        @Override
         public String toString() {
-            return "RollNo: " + rollNo + ", Name: " + name +
-                   ", Branch: " + branch + ", CGPA: " + cgpa;
+            return "RollNo: " + rollNo +
+                    ", Name: " + name +
+                    ", Branch: " + branch +
+                    ", CGPA: " + cgpa;
         }
     }
 
-    // ---------- a) File Analysis ----------
+    // ---------- Part A : File Analysis ----------
     static void fileAnalysis(String sourceFilePath) throws IOException {
-        int lines = 0, words = 0, chars = 0;
+
+        int lines = 0;
+        int words = 0;
+        int chars = 0;
+
         Map<String, Integer> freq = new HashMap<>();
 
         BufferedReader br = new BufferedReader(new FileReader(sourceFilePath));
+
         String line;
+
         while ((line = br.readLine()) != null) {
+
             lines++;
             chars += line.length();
+
             String[] tokens = line.trim().split("\\s+");
-            for (String w : tokens) {
-                if (w.isEmpty()) continue;
+
+            for (String word : tokens) {
+
+                if (word.isEmpty())
+                    continue;
+
                 words++;
-                w = w.toLowerCase();
-                freq.put(w, freq.getOrDefault(w, 0) + 1);
+
+                word = word.toLowerCase();
+
+                freq.put(word, freq.getOrDefault(word, 0) + 1);
             }
         }
+
         br.close();
 
         String mostFrequent = "";
         int maxCount = 0;
-        for (Map.Entry<String, Integer> e : freq.entrySet()) {
-            if (e.getValue() > maxCount) {
-                maxCount = e.getValue();
-                mostFrequent = e.getKey();
+
+        for (Map.Entry<String, Integer> entry : freq.entrySet()) {
+
+            if (entry.getValue() > maxCount) {
+                maxCount = entry.getValue();
+                mostFrequent = entry.getKey();
             }
         }
 
         BufferedWriter bw = new BufferedWriter(new FileWriter("report.txt"));
-        bw.write("Total lines: " + lines + "\n");
-        bw.write("Total words: " + words + "\n");
-        bw.write("Total characters: " + chars + "\n");
-        bw.write("Most frequent word: " + mostFrequent + " (" + maxCount + " times)\n");
+
+        bw.write("Total Lines : " + lines);
+        bw.newLine();
+
+        bw.write("Total Words : " + words);
+        bw.newLine();
+
+        bw.write("Total Characters : " + chars);
+        bw.newLine();
+
+        bw.write("Most Frequent Word : " + mostFrequent +
+                " (" + maxCount + " times)");
+
         bw.close();
 
-        System.out.println("File analysis written to report.txt");
-        System.out.println("Lines=" + lines + " Words=" + words + " Chars=" + chars);
-        System.out.println("Most frequent word: " + mostFrequent + " -> " + maxCount);
+        System.out.println("\n===== File Analysis =====");
+        System.out.println("Lines = " + lines);
+        System.out.println("Words = " + words);
+        System.out.println("Characters = " + chars);
+        System.out.println("Most Frequent Word = " + mostFrequent);
+        System.out.println("Report generated successfully in report.txt");
     }
 
-    // ---------- b) Student Management: serialize / deserialize ----------
-    static void studentManagement() throws IOException, ClassNotFoundException {
-        List<Student> students = new ArrayList<>();
+    // ---------- Part B : Student Serialization ----------
+    static void studentManagement() throws Exception {
+
+        ArrayList<Student> students = new ArrayList<>();
+
         students.add(new Student("01", "Amit", "CSE", 8.9));
         students.add(new Student("02", "Priya", "ECE", 9.1));
         students.add(new Student("03", "Rahul", "IT", 7.8));
         students.add(new Student("04", "Sneha", "CSE", 8.4));
         students.add(new Student("05", "Karan", "ME", 7.2));
 
-        // Serialize
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("students.ser"));
-        oos.writeObject(students);
-        oos.close();
-        System.out.println("\nStudent list serialized to students.ser");
+        // Serialization
+        ObjectOutputStream oos =
+                new ObjectOutputStream(new FileOutputStream("students.ser"));
 
-        // Deserialize
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("students.ser"));
-        List<Student> loaded = (List<Student>) ois.readObject();
+        oos.writeObject(students);
+
+        oos.close();
+
+        System.out.println("\nStudent data serialized successfully.");
+
+        // Deserialization
+        ObjectInputStream ois =
+                new ObjectInputStream(new FileInputStream("students.ser"));
+
+        ArrayList<Student> loaded =
+                (ArrayList<Student>) ois.readObject();
+
         ois.close();
 
-        System.out.println("Deserialized students (note cgpa is 0.0 since it's transient):");
-        for (Student s : loaded) System.out.println(s);
+        System.out.println("\n===== Deserialized Student Records =====");
+
+        for (Student s : loaded) {
+            System.out.println(s);
+        }
+
+        System.out.println("\nNote: CGPA becomes 0.0 because it is transient.");
     }
 
+    // ---------- Main ----------
     public static void main(String[] args) throws Exception {
-        // Pass the path of THIS .java source file to analyze itself
-        fileAnalysis("FileAndStudentDemo.java");
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter file name to analyze: ");
+        String fileName = sc.nextLine();
+
+        fileAnalysis(fileName);
+
         studentManagement();
+
+        sc.close();
     }
 }
 
