@@ -1,0 +1,475 @@
+C++ LAB MODULE TEST
+
+Part 2: Standalone Building-Block Programs
+
+Dynamic Memory • Pointers • Function Overloading • Templates • File Handling • Static Members
+
+Prepared for: Aditya Barakoti
+
+PG-DAC — CDAC Hyderabad
+
+##############################################################################
+HOW THIS GUIDE FITS WITH PART 1
+##############################################################################
+
+Part 1 (already prepared) covers Student class + sorting, Printer inheritance + friend, virtual functions + abstract class + diamond problem, Date operator overloading, custom exceptions, and STL vector/map/stack. This Part 2 covers the remaining 6 building-block programs your own syllabus analysis flagged: Dynamic Memory, Pointer, Function Overloading, Template, File Handling, and Static Members.
+
+The exam combines topics rather than testing them standalone — so treat these 6 as reusable pieces. A pointer-based Employee class, or a templated Stack with file-logging, are realistic combined questions built from exactly these parts.
+
+Program | Topic                       | Most Likely Combined With                               
+--------+-----------------------------+---------------------------------------------------------
+7       | Dynamic Memory (new/delete) | Any class question — dynamic array of objects           
+8       | Pointers + this pointer     | Class design, function-by-reference questions           
+9       | Function Overloading        | Date/Time class, math utility class                     
+10      | Templates                   | Vector/Stack (generic container questions)              
+11      | File Handling               | Any class needing persistence (Student/Employee records)
+12      | Static Members              | Any class needing a shared counter/ID generator         
+
+##############################################################################
+PROGRAM 7: DYNAMIC MEMORY (NEW / DELETE)
+##############################################################################
+
+Session 6-7 lab focus: new operator, class pointer, comparison with malloc/calloc, delete operator. The key exam skill is a dynamically-sized array of class objects — not just a single new int.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Write a program that dynamically allocates an array of Employee objects using the new operator, where the array size is taken as user input. Accept ID and Name for each employee, display all records, and properly free the allocated memory using delete[]. Also demonstrate dynamic allocation and deallocation of a single object using new and delete.
+======================================================================
+
+Full Solution
+-------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+class Employee {
+    int id;
+    string name;
+public:
+    Employee() : id(0), name("") {}
+    Employee(int i, string n) : id(i), name(n) {}
+    void display() const { cout << id << " - " << name << endl; }
+};
+ 
+int main() {
+    int n;
+    cout << "How many employees? ";
+    cin >> n;
+ 
+    // dynamic array of objects on the heap
+    Employee* emp = new Employee[n];
+ 
+    for (int i = 0; i < n; i++) {
+        int id; string name;
+        cout << "Enter ID and Name for employee " << i + 1 << ": ";
+        cin >> id >> name;
+        emp[i] = Employee(id, name);   // uses parameterized ctor + copy assignment
+    }
+ 
+    cout << "\nAll employees:\n";
+    for (int i = 0; i < n; i++) emp[i].display();
+ 
+    delete[] emp;   // MUST use delete[] for arrays, plain delete is undefined behavior here
+ 
+    // single dynamic object example
+    Employee* single = new Employee(101, "Solo");
+    single->display();     // -> operator for pointer to object
+    delete single;         // single object: plain delete
+ 
+    return 0;
+}
+```
+
+new/delete vs malloc/calloc/realloc/free
+----------------------------------------
+
+Aspect                 | new / delete                            | malloc/calloc/realloc/free        
+-----------------------+-----------------------------------------+-----------------------------------
+Type                   | Operator                                | Library function (needs <cstdlib>)
+Constructor/Destructor | Called automatically                    | NOT called — raw memory only      
+Type safety            | Type-safe, returns correct pointer type | Returns void*, needs explicit cast
+Array form             | new T[n] / delete[] p                   | malloc(n*sizeof(T)) / free(p)     
+Resize                 | Not directly supported                  | realloc() can resize              
+Failure handling       | Throws std::bad_alloc                   | Returns NULL                      
+
+----------------------------------------------------------------------
+[TIP] delete[] vs delete is a very common silent-bug trap. Array allocated with new[] but freed with plain delete only calls the destructor for the FIRST element — memory leak + undefined behavior. Always match new<->delete and new[]<->delete[].
+----------------------------------------------------------------------
+
+##############################################################################
+PROGRAM 8: POINTERS, CLASS POINTERS, THIS POINTER
+##############################################################################
+
+Session 6-7 lab focus: pointers in C++, arrays using pointers, class pointer, this pointer, pointer in function (call by address). Also directly relevant: pass-by-reference from Session 5.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Part A: Write a program to traverse an array using pointer arithmetic, and swap two integers using pointers. Part B: Design a Box class that uses the 'this' pointer to resolve a constructor parameter name clash, and supports method chaining (e.g., box.setLength(5).setWidth(10)). Part C: Write a function that increments a value using call-by-address (pointer parameter), and compare it with an equivalent call-by-reference version.
+======================================================================
+
+8a. Pointer Basics + Array via Pointer
+--------------------------------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+int main() {
+    int arr[5] = {10, 20, 30, 40, 50};
+    int* p = arr;             // array name decays to pointer to first element
+ 
+    cout << "Using array indexing: ";
+    for (int i = 0; i < 5; i++) cout << arr[i] << " ";
+    cout << endl;
+ 
+    cout << "Using pointer arithmetic: ";
+    for (int i = 0; i < 5; i++) cout << *(p + i) << " ";   // *(p+i) == arr[i]
+    cout << endl;
+ 
+    // swap using pointers (classic exam favorite)
+    int a = 5, b = 10;
+    int *pa = &a, *pb = &b;
+    int temp = *pa;
+    *pa = *pb;
+    *pb = temp;
+    cout << "After swap: a=" << a << " b=" << b << endl;
+ 
+    return 0;
+}
+```
+
+8b. Class Pointer + this Pointer
+--------------------------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+class Box {
+    int length;
+public:
+    Box(int length) {
+        this->length = length;   // 'this' resolves naming clash between param and member
+    }
+ 
+    Box& setLength(int length) {
+        this->length = length;
+        return *this;             // returning *this enables method chaining
+    }
+ 
+    void display() const { cout << "Length: " << length << endl; }
+};
+ 
+int main() {
+    Box b1(10);
+    b1.display();
+ 
+    Box* ptr = &b1;            // class pointer
+    ptr->display();            // -> to call member function via pointer
+    (*ptr).display();          // equivalent, dereference then dot
+ 
+    b1.setLength(20).setLength(30).display();   // method chaining via 'this'
+ 
+    return 0;
+}
+```
+
+8c. Pointer in Function (Call by Address) vs Call by Reference
+--------------------------------------------------------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+void incrementByPointer(int* p) { (*p)++; }     // call by address
+void incrementByReference(int& r) { r++; }      // call by reference
+ 
+int main() {
+    int x = 5;
+    incrementByPointer(&x);     // must pass address explicitly
+    cout << "After pointer increment: " << x << endl;
+ 
+    incrementByReference(x);    // passed directly, no & needed at call site
+    cout << "After reference increment: " << x << endl;
+ 
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] If asked to 'implement pointer in function', examiners usually mean call-by-address specifically (explicit & at call site, * to dereference inside) — don't just submit a call-by-reference version and call it the same thing.
+----------------------------------------------------------------------
+
+##############################################################################
+PROGRAM 9: FUNCTION OVERLOADING + INLINE
+##############################################################################
+
+Session 5 lab: different forms of functions, function prototyping, inline functions. Combine overloading with inline to cover both in one program.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Design a Calculator class with an overloaded add() function: one version that adds two integers, one that adds three integers, and one that adds two doubles. Also implement an inline function square() that returns the square of an integer. Write a main() that calls each overloaded version and the inline function.
+======================================================================
+
+```
+#include <iostream>
+using namespace std;
+ 
+class Calculator {
+public:
+    // overload 1: two ints
+    int add(int a, int b) { return a + b; }
+ 
+    // overload 2: three ints (different parameter COUNT)
+    int add(int a, int b, int c) { return a + b + c; }
+ 
+    // overload 3: two doubles (different parameter TYPE)
+    double add(double a, double b) { return a + b; }
+ 
+    // inline function: compiler substitutes the call with the function body directly
+    // (avoids function-call overhead for small, frequently-used functions)
+    inline int square(int x) { return x * x; }
+};
+ 
+int main() {
+    Calculator calc;
+    cout << "add(2,3) = " << calc.add(2, 3) << endl;              // calls overload 1
+    cout << "add(2,3,4) = " << calc.add(2, 3, 4) << endl;          // calls overload 2
+    cout << "add(2.5,3.5) = " << calc.add(2.5, 3.5) << endl;       // calls overload 3
+    cout << "square(6) = " << calc.square(6) << endl;
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] Overload resolution is decided by number/type of parameters, NEVER by return type alone. int add(int,int) and double add(int,int) in the same class is a compile error — examiners sometimes test if you know this.
+----------------------------------------------------------------------
+
+##############################################################################
+PROGRAM 10: TEMPLATES (FUNCTION + CLASS)
+##############################################################################
+
+Session 16 lab: introduction to templates, function templates, class templates. Templates are also the natural way to combine with STL-style container questions (Program 6 in Part 1).
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Part A: Write a function template findMax() that returns the larger of two values, and test it with int, double, and char arguments. Part B: Implement a class template MyStack<T> using a dynamically allocated array (new/delete) internally, supporting push(), pop(), and isEmpty(). Demonstrate it with both an int stack and a string stack.
+======================================================================
+
+10a. Function Template
+----------------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+template <typename T>
+T findMax(T a, T b) {
+    return (a > b) ? a : b;
+}
+ 
+int main() {
+    cout << findMax(10, 20) << endl;         // T = int
+    cout << findMax(3.5, 2.1) << endl;       // T = double
+    cout << findMax('a', 'z') << endl;       // T = char
+    return 0;
+}
+```
+
+10b. Class Template — Generic Stack (combines Template + STL-style design)
+--------------------------------------------------------------------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+template <typename T>
+class MyStack {
+private:
+    T* arr;
+    int top;
+    int capacity;
+public:
+    MyStack(int size) : capacity(size), top(-1) {
+        arr = new T[capacity];      // dynamic memory + template together
+    }
+ 
+    ~MyStack() { delete[] arr; }    // destructor frees heap memory
+ 
+    void push(T value) {
+        if (top == capacity - 1) { cout << "Stack overflow\n"; return; }
+        arr[++top] = value;
+    }
+ 
+    T pop() {
+        if (top == -1) { cout << "Stack underflow\n"; return T(); }
+        return arr[top--];
+    }
+ 
+    bool isEmpty() const { return top == -1; }
+};
+ 
+int main() {
+    MyStack<int> intStack(5);
+    intStack.push(10);
+    intStack.push(20);
+    intStack.push(30);
+    while (!intStack.isEmpty()) cout << intStack.pop() << " ";
+    cout << endl;
+ 
+    MyStack<string> strStack(3);
+    strStack.push("C++");
+    strStack.push("CDAC");
+    while (!strStack.isEmpty()) cout << strStack.pop() << " ";
+    cout << endl;
+ 
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] A hand-rolled generic Stack/Queue (template class + new/delete internally) is a favorite 'combine 3 topics in one' exam question: Templates + Dynamic Memory + your Session 17-18 STL concept, all in one class.
+----------------------------------------------------------------------
+
+##############################################################################
+PROGRAM 11: FILE HANDLING (READ / WRITE / APPEND)
+##############################################################################
+
+Session 15 lab: definition of file, file handling in C++, read/write operations. Combine with a class (e.g., Student) to simulate persistence — a realistic combined-question shape.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Write a program to store Student records (roll number, name, marks) into a text file using ofstream. Add a feature to append a new record to the same file without overwriting existing data. Then read back and display all records from the file using ifstream.
+======================================================================
+
+```
+#include <iostream>
+#include <fstream>     // required for file streams
+#include <string>
+using namespace std;
+ 
+class Student {
+public:
+    int roll;
+    string name;
+    float marks;
+ 
+    Student() {}
+    Student(int r, string n, float m) : roll(r), name(n), marks(m) {}
+ 
+    void display() const {
+        cout << roll << "\t" << name << "\t" << marks << endl;
+    }
+};
+ 
+int main() {
+    // ---- WRITE (overwrite) ----
+    ofstream outFile("students.txt");    // ofstream = output file stream
+    if (!outFile) { cout << "Error opening file for writing.\n"; return 1; }
+ 
+    outFile << 1 << " Aditya " << 78.5 << endl;
+    outFile << 2 << " Riya "   << 91.2 << endl;
+    outFile.close();
+    cout << "Data written to students.txt\n";
+ 
+    // ---- APPEND ----
+    ofstream appendFile("students.txt", ios::app);   // ios::app = append mode
+    appendFile << 3 << " Karan " << 65.0 << endl;
+    appendFile.close();
+    cout << "Data appended.\n";
+ 
+    // ---- READ ----
+    ifstream inFile("students.txt");     // ifstream = input file stream
+    if (!inFile) { cout << "Error opening file for reading.\n"; return 1; }
+ 
+    cout << "\nReading back from file:\n";
+    Student s;
+    while (inFile >> s.roll >> s.name >> s.marks) {
+        s.display();
+    }
+    inFile.close();
+ 
+    return 0;
+}
+```
+
+File Mode Flags Cheat Sheet
+---------------------------
+
+Flag        | Meaning                                                              
+------------+----------------------------------------------------------------------
+ios::in     | Open for reading (default for ifstream)                              
+ios::out    | Open for writing (default for ofstream) — truncates existing content 
+ios::app    | Append — writes are always added at the end, existing content kept   
+ios::ate    | Open and seek to end immediately (but can write anywhere, unlike app)
+ios::binary | Open in binary mode (no text translation)                            
+
+----------------------------------------------------------------------
+[TIP] Always check the file stream opened successfully (if (!file)) before using it, and always call .close() explicitly even though the destructor would do it — examiners look for this.
+----------------------------------------------------------------------
+
+##############################################################################
+PROGRAM 12: STATIC DATA MEMBERS & STATIC FUNCTIONS
+##############################################################################
+
+Session 2-3 lecture explicitly lists 'Static Members' alongside Constant Members. A classic combined use: auto-generating unique IDs for every object created (ties naturally into constructors from Program 1).
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Design an Employee class that uses a static data member to automatically assign a unique, auto-incrementing ID to every object created (without the caller supplying an ID). Provide a static member function that returns the total number of Employee objects created so far, callable without any object instance.
+======================================================================
+
+```
+#include <iostream>
+using namespace std;
+ 
+class Employee {
+private:
+    int id;
+    string name;
+    static int count;          // declaration only -- shared across ALL objects
+ 
+public:
+    Employee(string n) : name(n) {
+        count++;                // increments the SAME shared variable each time
+        id = count;              // auto-generate unique ID from static counter
+    }
+ 
+    void display() const {
+        cout << "ID: " << id << " Name: " << name << endl;
+    }
+ 
+    static int getCount() {     // static member function: no 'this', can't access non-static members
+        return count;
+    }
+};
+ 
+int Employee::count = 0;        // MUST define + initialize static member OUTSIDE the class
+ 
+int main() {
+    Employee e1("Aditya");
+    Employee e2("Riya");
+    Employee e3("Karan");
+ 
+    e1.display();
+    e2.display();
+    e3.display();
+ 
+    // call static function WITHOUT any object, using class name directly
+    cout << "Total employees created: " << Employee::getCount() << endl;
+ 
+    return 0;
+}
+```
+
+Key Rules for Static Members
+----------------------------
+  - A static data member is declared inside the class but MUST be defined (and initialized) once outside the class — forgetting this causes a linker error, not a compile error (easy to lose marks on).
+  - Static member functions can ONLY access other static members — no 'this' pointer exists inside them.
+  - Static members can be accessed via ClassName::member, even without any object created.
+  - Exactly ONE copy of a static member exists, shared by all objects — not per-object like normal data members.
+
+----------------------------------------------------------------------
+[TIP] If your program compiles but linker throws 'undefined reference to Employee::count', you forgot the outside-class definition (int Employee::count = 0;). This is the #1 static-member mistake under exam pressure.
+----------------------------------------------------------------------

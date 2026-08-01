@@ -1,0 +1,557 @@
+C++ LAB MODULE TEST
+
+High-Probability Question Patterns — 40 Marks (2 Questions)
+
+Based on CDAC PG-DAC C++ Programming Teaching Guidelines (Aug 2024 syllabus)
+
+Prepared for: Aditya Barakoti
+
+PG-DAC — CDAC Hyderabad
+
+##############################################################################
+EXAM PATTERN ANALYSIS
+##############################################################################
+
+Based on the teaching guidelines, lab sessions repeatedly build TWO kinds of programs: a data-holding class with array/sorting logic (Sessions 8-9), and an inheritance/polymorphism hierarchy (Sessions 10-12). The lab exam (40 marks, 2 questions) most likely draws one question from each category.
+
+#  | Likely Question Type         | Core Topics Tested                                                     | Marks
+---+------------------------------+------------------------------------------------------------------------+------
+Q1 | Class design + data handling | Constructors, arrays of objects, sorting, copy constructor             | 18-20
+Q2 | Inheritance + Polymorphism   | Virtual functions, abstract class, operator/friend, exceptions, or STL | 20-22
+
+----------------------------------------------------------------------
+[TIP] Read BOTH questions fully before starting. Pick the one with a topic you're most confident in first — partial marks are given for compiling + partially correct logic, so don't leave a question blank.
+----------------------------------------------------------------------
+
+6 Patterns Covered In This Guide
+--------------------------------
+  - Pattern 1: Class with array of objects + sorting (Student/Employee style)
+  - Pattern 2: Inheritance hierarchy + friend function/class (Printer style)
+  - Pattern 3: Virtual functions + Abstract class + Diamond problem
+  - Pattern 4: Operator overloading (Date/Time style)
+  - Pattern 5: Exception handling with custom exception class
+  - Pattern 6: STL basics (vector, map, stack)
+
+##############################################################################
+PATTERN 1: CLASS + ARRAY OF OBJECTS + SORTING
+##############################################################################
+
+This exact phrase appears TWICE in your syllabus (Session 3 lab AND Session 8 lab): "Write a Student class... store data of 10 students... display sorted data according to roll numbers, dates of birth, and total marks." This is your single highest-probability question.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Design a class Student with private data members roll number, name, date of birth, and total marks. Provide a default constructor and a parameterized constructor. Write a program to store data of 10 students in an array of objects and display the data sorted according to (a) roll numbers, (b) dates of birth, and (c) total marks.
+======================================================================
+
+What examiners check
+--------------------
+  - Parameterized constructor + default constructor
+  - Proper private data members with public getters (encapsulation)
+  - Array of objects (or vector<Student>)
+  - Sorting logic implemented manually (bubble/selection sort) — don't just call std::sort unless allowed
+  - Clean display() function, called in a loop
+
+Full Solution
+-------------
+
+```
+#include <iostream>
+#include <string>
+using namespace std;
+ 
+class Student {
+private:
+    int rollNo;
+    string name;
+    string dob;        // format: dd/mm/yyyy
+    float totalMarks;
+ 
+public:
+    Student() : rollNo(0), name(""), dob(""), totalMarks(0) {}   // default ctor
+ 
+    Student(int r, string n, string d, float m)                  // parameterized ctor
+        : rollNo(r), name(n), dob(d), totalMarks(m) {}
+ 
+    // getters (needed for sorting comparisons from outside)
+    int getRoll() const { return rollNo; }
+    string getDob() const { return dob; }
+    float getMarks() const { return totalMarks; }
+ 
+    void display() const {
+        cout << rollNo << "\t" << name << "\t" << dob << "\t" << totalMarks << endl;
+    }
+};
+ 
+// Generic bubble sort using a function pointer for the comparison field
+void sortByRoll(Student arr[], int n) {
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (arr[j].getRoll() > arr[j + 1].getRoll())
+                swap(arr[j], arr[j + 1]);
+}
+ 
+void sortByMarks(Student arr[], int n) {
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (arr[j].getMarks() > arr[j + 1].getMarks())   // descending: highest first
+                swap(arr[j], arr[j + 1]);
+}
+ 
+void sortByDob(Student arr[], int n) {
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (arr[j].getDob() > arr[j + 1].getDob())   // string compare works for dd/mm/yyyy only if zero-padded
+                swap(arr[j], arr[j + 1]);
+}
+ 
+void displayAll(Student arr[], int n) {
+    cout << "Roll\tName\tDOB\t\tMarks\n";
+    for (int i = 0; i < n; i++) arr[i].display();
+}
+ 
+int main() {
+    Student students[10] = {
+        Student(5, "Aditya", "12/03/2001", 78.5),
+        Student(2, "Riya",   "05/07/2000", 91.2),
+        Student(8, "Karan",  "20/01/2002", 65.0),
+        // ... add remaining 7 the same way, or take input in a loop
+        Student(1, "Meera",  "11/11/2001", 88.0),
+        Student(3, "Sohan",  "02/09/2000", 55.5),
+        Student(9, "Divya",  "30/06/2001", 72.3),
+        Student(4, "Aman",   "15/04/2002", 60.0),
+        Student(7, "Neha",   "08/08/2000", 95.5),
+        Student(6, "Rahul",  "25/12/2001", 45.0),
+        Student(10,"Priya",  "03/02/2002", 82.0)
+    };
+ 
+    sortByRoll(students, 10);
+    cout << "Sorted by Roll Number:\n";
+    displayAll(students, 10);
+ 
+    sortByMarks(students, 10);
+    cout << "\nSorted by Total Marks (desc):\n";
+    displayAll(students, 10);
+ 
+    sortByDob(students, 10);
+    cout << "\nSorted by Date of Birth:\n";
+    displayAll(students, 10);
+ 
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] If the exam gives you time, take input with a for-loop + cin instead of hardcoding — examiners like to see cin/cout used, not just hardcoded values. Keep both versions ready mentally.
+----------------------------------------------------------------------
+
+##############################################################################
+PATTERN 2: INHERITANCE + FRIEND FUNCTION (PRINTER HIERARCHY)
+##############################################################################
+
+Directly from Session 10 lab: "Design a hierarchy of computer printers. Use multiple inheritance in your hierarchy. Also use friend functions and classes in your program." This tests inheritance types + friend access together.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Design a class hierarchy for computer printers. A Printer should combine functionality from a NetworkModule class and a ScannerModule class using multiple inheritance. Derive at least two specialized printer types (e.g., LaserPrinter, InkjetPrinter) from Printer using hierarchical inheritance. Use a friend function to generate a maintenance report that accesses the printer's private page-count data.
+======================================================================
+
+Full Solution
+-------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+class NetworkModule {
+protected:
+    string ipAddress;
+public:
+    NetworkModule(string ip) : ipAddress(ip) {}
+    void showNetwork() { cout << "IP Address: " << ipAddress << endl; }
+};
+ 
+class ScannerModule {
+protected:
+    int dpi;
+public:
+    ScannerModule(int d) : dpi(d) {}
+    void showScanner() { cout << "Scan DPI: " << dpi << endl; }
+};
+ 
+// Multiple inheritance: Printer combines Network + Scanner capability
+class Printer : public NetworkModule, public ScannerModule {
+private:
+    string model;
+    int pagesPrinted;
+ 
+public:
+    Printer(string m, string ip, int d)
+        : NetworkModule(ip), ScannerModule(d), model(m), pagesPrinted(0) {}
+ 
+    void printPage() { pagesPrinted++; }
+ 
+    // friend function can access private pagesPrinted directly
+    friend void showMaintenanceReport(const Printer& p);
+};
+ 
+void showMaintenanceReport(const Printer& p) {
+    cout << "Model: " << p.model
+         << " | Pages printed: " << p.pagesPrinted   // private member, accessible via friend
+         << endl;
+}
+ 
+// Hierarchical inheritance: two specialized printer types from Printer
+class LaserPrinter : public Printer {
+public:
+    LaserPrinter(string m, string ip, int d) : Printer(m, ip, d) {}
+    void toner() { cout << "Toner level checked.\n"; }
+};
+ 
+class InkjetPrinter : public Printer {
+public:
+    InkjetPrinter(string m, string ip, int d) : Printer(m, ip, d) {}
+    void ink() { cout << "Ink level checked.\n"; }
+};
+ 
+int main() {
+    LaserPrinter lp("HP LaserJet", "192.168.1.10", 600);
+    lp.printPage();
+    lp.printPage();
+    lp.showNetwork();     // inherited from NetworkModule
+    lp.showScanner();     // inherited from ScannerModule
+    lp.toner();
+    showMaintenanceReport(lp);   // friend function, accesses private data
+ 
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] Interviewers/examiners often ask you to point out WHICH inheritance type is used where. Here: Printer uses multiple inheritance (2 direct bases); LaserPrinter/InkjetPrinter demonstrate hierarchical inheritance (2 classes from same base Printer).
+----------------------------------------------------------------------
+
+##############################################################################
+PATTERN 3: VIRTUAL FUNCTIONS + ABSTRACT CLASS + DIAMOND PROBLEM
+##############################################################################
+
+Session 12 lab explicitly lists THREE separate tasks: abstract classes, virtual/pure-virtual printer hierarchy, and diamond problem with a real-life example. Any one (or a combined) version could appear.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Part A: Design an abstract class Shape with a pure virtual function area(). Derive Circle and Rectangle classes from it and demonstrate runtime polymorphism using an array of base class pointers. Part B: Implement the diamond problem using a real-life example (e.g., a SmartPrinter that inherits both scanning and faxing capability from a common Device base class) and resolve the ambiguity using virtual inheritance.
+======================================================================
+
+3a. Abstract Class + Runtime Polymorphism
+-----------------------------------------
+
+```
+#include <iostream>
+using namespace std;
+ 
+class Shape {              // abstract class
+public:
+    virtual double area() = 0;        // pure virtual
+    virtual void display() {
+        cout << "Area = " << area() << endl;
+    }
+    virtual ~Shape() {}    // virtual destructor -- always include this
+};
+ 
+class Circle : public Shape {
+    double radius;
+public:
+    Circle(double r) : radius(r) {}
+    double area() override { return 3.14159 * radius * radius; }
+};
+ 
+class Rectangle : public Shape {
+    double length, width;
+public:
+    Rectangle(double l, double w) : length(l), width(w) {}
+    double area() override { return length * width; }
+};
+ 
+int main() {
+    Shape* shapes[2];
+    shapes[0] = new Circle(5);
+    shapes[1] = new Rectangle(4, 6);
+ 
+    for (int i = 0; i < 2; i++) {
+        shapes[i]->display();   // runtime polymorphism: correct area() picked per object
+        delete shapes[i];
+    }
+    return 0;
+}
+```
+
+3b. Diamond Problem — Real-Life Example
+---------------------------------------
+Classic real-life example: a SmartPrinter inherits from both ScanDevice and FaxDevice, which both inherit from a common Device base. Without 'virtual' inheritance, SmartPrinter would get two copies of Device, causing ambiguity.
+
+```
+#include <iostream>
+using namespace std;
+ 
+class Device {
+protected:
+    string serialNo;
+public:
+    Device(string s = "UNSET") : serialNo(s) {}
+    void showSerial() { cout << "Serial: " << serialNo << endl; }
+};
+ 
+// virtual inheritance solves the diamond problem
+class ScanDevice : virtual public Device {
+public:
+    void scan() { cout << "Scanning...\n"; }
+};
+ 
+class FaxDevice : virtual public Device {
+public:
+    void fax() { cout << "Faxing...\n"; }
+};
+ 
+class SmartPrinter : public ScanDevice, public FaxDevice {
+public:
+    SmartPrinter(string s) : Device(s) {}   // must init virtual base directly
+};
+ 
+int main() {
+    SmartPrinter sp("SN-2024-XZ");
+    sp.scan();
+    sp.fax();
+    sp.showSerial();     // no ambiguity -- only ONE Device sub-object exists
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] Be ready to explain WHY: without 'virtual' on ScanDevice/FaxDevice's inheritance, sp.showSerial() would give a compiler error (ambiguous: Device via ScanDevice vs Device via FaxDevice).
+----------------------------------------------------------------------
+
+##############################################################################
+PATTERN 4: OPERATOR OVERLOADING (DATE/TIME STYLE)
+##############################################################################
+
+From Session 11 lab: "Write Date and Time classes that add, subtract, read and print... Assignments to overload =, ==, +, ++, --, <<, >> and [] operators." Practice overloading the stream operators especially — they trip people up because they must be non-member (or friend) functions.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Design a Date class with day, month, and year as data members. Overload the following operators: + (to add a number of days to a date), prefix and postfix ++ (to advance the date by one day), == (to compare two dates for equality), = (copy assignment), and << / >> (to print and read a Date object using cout/cin).
+======================================================================
+
+```
+#include <iostream>
+using namespace std;
+ 
+class Date {
+private:
+    int day, month, year;
+ 
+public:
+    Date(int d = 1, int m = 1, int y = 2000) : day(d), month(m), year(y) {}
+ 
+    // overload + to add days to a date (simplified, ignores month-length edge cases)
+    Date operator+(int days) const {
+        Date result = *this;
+        result.day += days;
+        while (result.day > 30) { result.day -= 30; result.month++; }   // simplified
+        while (result.month > 12) { result.month -= 12; result.year++; }
+        return result;
+    }
+ 
+    // prefix ++ : ++date
+    Date& operator++() {
+        day++;
+        if (day > 30) { day = 1; month++; }
+        return *this;
+    }
+ 
+    // postfix ++ : date++  (int parameter is a dummy marker to distinguish from prefix)
+    Date operator++(int) {
+        Date temp = *this;
+        ++(*this);
+        return temp;
+    }
+ 
+    bool operator==(const Date& d) const {
+        return day == d.day && month == d.month && year == d.year;
+    }
+ 
+    Date& operator=(const Date& d) {          // copy assignment
+        if (this != &d) { day = d.day; month = d.month; year = d.year; }
+        return *this;
+    }
+ 
+    // must be friend (or free function) since left-hand side is ostream, not Date
+    friend ostream& operator<<(ostream& out, const Date& d) {
+        out << (d.day < 10 ? "0" : "") << d.day << "/"
+            << (d.month < 10 ? "0" : "") << d.month << "/" << d.year;
+        return out;
+    }
+ 
+    friend istream& operator>>(istream& in, Date& d) {
+        cout << "Enter day month year: ";
+        in >> d.day >> d.month >> d.year;
+        return in;
+    }
+};
+ 
+int main() {
+    Date d1(28, 3, 2024);
+    Date d2 = d1 + 5;          // operator+
+    cout << "d1 = " << d1 << endl;   // operator<<
+    cout << "d2 = " << d2 << endl;
+ 
+    ++d1;                      // prefix
+    d1++;                      // postfix
+    cout << "After increments: " << d1 << endl;
+ 
+    cout << (d1 == d2 ? "Equal" : "Not equal") << endl;   // operator==
+ 
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] Remember: << and >> MUST be non-member (friend) functions because the object on the left (cout/cin) is not your class. =, ==, ++ etc. are usually member functions because the left-hand object IS your class.
+----------------------------------------------------------------------
+
+##############################################################################
+PATTERN 5: EXCEPTION HANDLING WITH CUSTOM EXCEPTION
+##############################################################################
+
+Session 13 lab: "Implement exceptions and do proper management... Implement Custom exception class." Simple but easy to fumble syntax under exam pressure — memorize this skeleton.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Design a custom exception class InsufficientBalanceException derived from std::exception. Implement a bank Account class with a withdraw() function that throws this exception when the withdrawal amount exceeds the available balance. Write a program with proper try-catch blocks (including a catch-all) to handle the exception and allow the program to continue normally afterward.
+======================================================================
+
+```
+#include <iostream>
+#include <exception>
+#include <string>
+using namespace std;
+ 
+// custom exception class -- must derive from std::exception
+class InsufficientBalanceException : public exception {
+private:
+    string message;
+public:
+    InsufficientBalanceException(double shortfall) {
+        message = "Insufficient balance! Short by Rs. " + to_string(shortfall);
+    }
+    const char* what() const noexcept override {   // must match this exact signature
+        return message.c_str();
+    }
+};
+ 
+class Account {
+    double balance;
+public:
+    Account(double b) : balance(b) {}
+ 
+    void withdraw(double amount) {
+        if (amount > balance)
+            throw InsufficientBalanceException(amount - balance);   // throwing custom exception
+        balance -= amount;
+        cout << "Withdrawal successful. New balance: " << balance << endl;
+    }
+};
+ 
+int main() {
+    Account acc(1000);
+ 
+    try {
+        acc.withdraw(500);
+        acc.withdraw(800);     // this will throw
+    }
+    catch (const InsufficientBalanceException& e) {
+        cout << "Caught custom exception: " << e.what() << endl;
+    }
+    catch (const exception& e) {          // catches any other std exceptions
+        cout << "Caught: " << e.what() << endl;
+    }
+    catch (...) {                          // catch-all fallback
+        cout << "Unknown exception occurred." << endl;
+    }
+ 
+    cout << "Program continues normally after exception handling." << endl;
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] Order your catch blocks from MOST specific to LEAST specific (custom exception first, exception second, catch(...) last). Reverse order means the specific catch block never runs.
+----------------------------------------------------------------------
+
+##############################################################################
+PATTERN 6: STL BASICS (VECTOR, MAP, STACK)
+##############################################################################
+
+Session 17-18 lab: "Working with Stack, Vector, Queue, Map... Assignments on STL Library." A short combined demo program is the safest way to show you know all of them.
+
+======================================================================
+[QUESTION] Practice Question (20 marks): 
+Write a program that demonstrates all three of the following: (a) store a set of student marks in a vector, sort them, and display them; (b) store roll-number-to-name mappings in a map and search for a specific roll number; (c) simulate an 'undo history' feature using a stack, pushing and popping recent actions.
+======================================================================
+
+```
+#include <iostream>
+#include <vector>
+#include <map>
+#include <stack>
+#include <algorithm>
+using namespace std;
+ 
+int main() {
+    // ---- vector ----
+    vector<int> marks = {78, 91, 65, 88, 55};
+    marks.push_back(72);
+    sort(marks.begin(), marks.end());       // ascending sort
+    cout << "Sorted marks: ";
+    for (int m : marks) cout << m << " ";
+    cout << endl;
+ 
+    // ---- map (key-value, auto-sorted by key) ----
+    map<int, string> rollToName;
+    rollToName[101] = "Aditya";
+    rollToName[102] = "Riya";
+    rollToName[103] = "Karan";
+    cout << "\nRoll -> Name mapping:\n";
+    for (auto& entry : rollToName)
+        cout << entry.first << " -> " << entry.second << endl;
+ 
+    if (rollToName.find(102) != rollToName.end())
+        cout << "Found roll 102: " << rollToName[102] << endl;
+ 
+    // ---- stack (LIFO) ----
+    stack<string> undoHistory;
+    undoHistory.push("Typed text");
+    undoHistory.push("Bold applied");
+    undoHistory.push("Italic applied");
+    cout << "\nUndo stack (most recent first):\n";
+    while (!undoHistory.empty()) {
+        cout << undoHistory.top() << endl;
+        undoHistory.pop();
+    }
+ 
+    return 0;
+}
+```
+
+----------------------------------------------------------------------
+[TIP] Know the header for each container (<vector>, <map>, <stack>) and the core operations by name: push_back/push, pop/pop_back, top/front, find, [] access for map. Examiners may just ask you to name the header + complexity.
+----------------------------------------------------------------------
+
+##############################################################################
+DAY-OF-EXAM CHECKLIST
+##############################################################################
+
+  - Add #include <iostream> and using namespace std; FIRST — don't forget compile-time basics under pressure.
+  - Use meaningful variable/class names matching the question's domain (don't submit generic Foo/Bar classes).
+  - Test your class with a small main() that exercises every public method before finalizing.
+  - If short on time, get the class skeleton + constructors + basic display() compiling first — partial credit matters more than a perfect but incomplete answer.
+  - Add comments (// like this) next to non-obvious lines — many CDAC evaluators give credit for showing understanding, not just correct output.
+  - Double check: virtual destructor in any class with virtual functions; friend keyword only in the class granting access, not the one using it.
