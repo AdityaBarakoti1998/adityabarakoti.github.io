@@ -1,0 +1,299 @@
+﻿MySQL -------- 
+
+
+Create Database system for Supermarket Store(Like DMart) - 35 Marks
+1. Create minimum 3 tables without any Key constraints(6)
+2. Add Primary Key to each table(3)
+3. Connect at least 2 tables using Foreign Key(2)
+4. Insert minimum 3 records in each of the table(3)
+5. Write a command to sort the result based on product name(2)
+6. Write an appropriate command to Use of Where with OR clause (2)
+7. Write a command to show first five records from any one table (1)
+8. Write a command with condition to use 'between' key word(2)
+9 .Write a command for appropriate and logical use of Group By clause(3)
+10. Write a command to use LEFT JOIN (3)
+11. Create the temporary table. Write a command to remove this table permanently (2)
+12. Create at least one procedure (with one INPUT and one OUTPUT parameter) based on the created tables with appropriate utility (3)
+13. Create a ONE trigger of BEFORE UPDATE ON any one of the table(3)
+
+
+1. Create minimum 3 tables without any Key constraints(6)
+
+
+CREATE DATABASE SupermarketDB;
+USE SupermarketDB;
+
+
+CREATE TABLE Product(
+    ProductID INT,
+    ProductName VARCHAR(50),
+    Category VARCHAR(30),
+    Price DECIMAL(10,2),
+    Stock INT
+);
+
+
+CREATE TABLE Customer(
+    CustomerID INT,
+    CustomerName VARCHAR(50),
+    City VARCHAR(30),
+    Phone VARCHAR(15)
+);
+
+
+CREATE TABLE Orders(
+    OrderID INT,
+    CustomerID INT,
+    ProductID INT,
+    Quantity INT,
+    OrderDate DATE );
+2. Add Primary Key to each table(3)
+
+
+
+
+ALTER TABLE Product
+ADD PRIMARY KEY(ProductID);
+
+
+ALTER TABLE Customer
+ADD PRIMARY KEY(CustomerID);
+
+
+ALTER TABLE Orders
+ADD PRIMARY KEY(OrderID);
+
+
+
+
+
+
+ALTER TABLE Orders
+ADD CONSTRAINT fk_customer
+FOREIGN KEY(CustomerID)
+REFERENCES Customer(CustomerID);
+
+
+ALTER TABLE Orders
+ADD CONSTRAINT fk_product
+FOREIGN KEY(ProductID)
+REFERENCES Product(ProductID);
+
+
+
+
+4. Insert minimum 3 records in each of the table(3)
+
+
+INSERT INTO Product VALUES
+(101,'Rice','Grocery',120,50),
+(102,'Milk','Dairy',60,100),
+(103,'Soap','Personal Care',45,80);
+
+
+INSERT INTO Customer VALUES
+(1,'Rahul','Hyderabad','9876543210'),
+(2,'Priya','Delhi','9876500000'),
+(3,'Amit','Mumbai','9999999999');
+
+
+INSERT INTO Orders VALUES
+(1001,1,101,2,'2026-08-01'),
+(1002,2,103,4,'2026-08-02'),
+(1003,3,102,3,'2026-08-03');
+
+
+
+
+
+
+5. Write a command to sort the result based on product name(2)
+
+
+SELECT *
+FROM Product
+ORDER BY ProductName;
+
+
+6. Write an appropriate command to Use of Where with OR clause (2)
+
+
+SELECT *
+FROM Product
+WHERE Category='Grocery'
+OR Price>100;
+
+
+
+
+7. Write a command to show first five records from any one table (1)
+
+
+SELECT *
+FROM Product
+LIMIT 5;
+
+
+8. Write a command with condition to use 'between' key word(2)
+
+
+SELECT *
+FROM Product
+WHERE Price BETWEEN 50 AND 150;
+
+
+9 .Write a command for appropriate and logical use of Group By clause(3) 
+
+
+SELECT Category,
+COUNT(*) AS TotalProducts
+FROM Product
+GROUP BY Category;
+
+
+10. Write a command to use LEFT JOIN (3) 
+
+
+SELECT
+Orders.OrderID,
+Customer.CustomerName,
+Product.ProductName,
+Orders.Quantity
+FROM Orders
+LEFT JOIN Customer
+ON Orders.CustomerID=Customer.CustomerID
+LEFT JOIN Product
+ON Orders.ProductID=Product.ProductID;
+
+
+11. Create the temporary table. Write a command to remove this table permanently (2) 
+
+
+CREATE TEMPORARY TABLE TempProduct AS
+SELECT *
+FROM Product;
+
+
+Delete it permanently:
+DROP TEMPORARY TABLE TempProduct;
+
+
+12. Create at least one procedure (with one INPUT and one OUTPUT parameter) based on the created tables with appropriate utility (3) 
+
+
+DELIMITER $$
+
+
+CREATE PROCEDURE GetProductCount(
+IN p_category VARCHAR(30),
+OUT total INT
+)
+
+
+BEGIN
+
+
+SELECT COUNT(*)
+INTO total
+FROM Product
+WHERE Category=p_category;
+
+
+END $$
+
+
+DELIMITER ;
+
+
+Run Procedure: 
+CALL GetProductCount('Grocery',@count);
+
+
+SELECT @count;
+
+
+13. Create a ONE trigger of BEFORE UPDATE ON any one of the table(3)
+
+
+ DELIMITER $$
+
+
+CREATE TRIGGER trg_before_update
+BEFORE UPDATE
+ON Product
+FOR EACH ROW
+
+
+BEGIN
+IF NEW.Price<0 THEN
+SET NEW.Price=OLD.Price;
+END IF;
+END $$
+
+
+DELIMITER ;
+
+
+
+
+MongoDB ----------- 
+
+
+Create Database in MongoDB for Supermarket Store(Like DMart) System. - 5 Marks 
+1. Write the command for creating collection & for inserting documents in collections(1) 
+2. Write  a command to list all from the result (1) 
+3. Use the $and operator to find products based on multiple conditions (for example: cost greater 
+than 100 AND category is 'Grocery') (1) 
+4. Write a command to sort the result in descending order based on Product cost(1) 
+5. Create an index on the name (of product) field. (1) 
+
+
+
+
+1. Create collection & insert documents 
+
+
+javascript 
+// Create collection 
+db.createCollection("Products"); 
+// Insert documents 
+db.Products.insertMany([ 
+{ ProductID: 1, Name: "Rice", Cost: 120, Category: "Grocery" }, 
+{ ProductID: 2, Name: "Milk", Cost: 40, Category: "Dairy" }, 
+{ ProductID: 3, Name: "Soap", Cost: 25, Category: "Personal Care" } 
+]); 
+
+
+
+
+2. List all from the result 
+
+
+javascript 
+db.Products.find({}); 
+
+
+3. Use $and operator (multiple conditions) 
+
+
+javascript 
+db.Products.find({ 
+$and: [ 
+{ Cost: { $gt: 100 } }, 
+{ Category: "Grocery" } 
+] 
+}); 
+
+
+4. Sort result in descending order based on Product cost 
+
+
+javascript 
+db.Products.find().sort({ Cost: -1 }); 
+
+
+5. Create an index on product name field 
+
+
+javascript 
+db.Products.createIndex({ Name: 1 });

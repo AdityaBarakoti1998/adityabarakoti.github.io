@@ -1,0 +1,199 @@
+﻿MySQL
+--------
+Create Database system for Medical Store(Like Wellness Forever) - 35 Marks
+
+
+1. Create minimum 3 tables without any Key constraints(6)
+2. Add Primary Key to each table(3)
+3. Connect at least 2 tables using Foreign Key(2)
+4. Insert minimum 3 records in each of the table(3)
+5. Write a command to sort the result based on name(2) 
+6. Write an appropriate command to Use of Where with OR clause (2)
+7. Write a command to show first five records from any one table (1)
+8. Write a command with condition to use 'between' key word(2)
+9 .Write a command for appropriate and logical use of Group By clause(3)
+10. Write a command to use LEFT JOIN (3)
+11. Create the temporary table. Write a command to remove this table permanently (2) 
+12. Create at least one procedure (with one INPUT and one OUTPUT parameter) based on the created tables with appropriate utility (3)
+13. Create a ONE trigger  of BEFORE UPDATE ON any one of the table(3)
+
+
+
+1. Create minimum 3 tables without any Key constraints
+
+
+CREATE TABLE Medicines (
+    MedicineID INT,
+    Name VARCHAR(50),
+    Cost DECIMAL(10,2),
+    Category VARCHAR(30)
+);
+
+
+CREATE TABLE Customers (
+    CustomerID INT,
+    Name VARCHAR(50),
+    Phone VARCHAR(15),
+    City VARCHAR(30)
+);
+
+
+CREATE TABLE Sales (
+    SaleID INT,
+    CustomerID INT,
+    MedicineID INT,
+    Quantity INT,
+    SaleDate DATE
+);
+2. Add Primary Key to each table
+
+
+ALTER TABLE Medicines ADD PRIMARY KEY (MedicineID);
+ALTER TABLE Customers ADD PRIMARY KEY (CustomerID);
+ALTER TABLE Sales ADD PRIMARY KEY (SaleID);
+3. Connect at least 2 tables using Foreign Key
+
+
+ALTER TABLE Sales ADD CONSTRAINT FK_Customer FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID);
+
+
+ALTER TABLE Sales ADD CONSTRAINT FK_Medicine FOREIGN KEY (MedicineID) REFERENCES Medicines(MedicineID);
+4. Insert minimum 3 records in each table
+
+
+INSERT INTO Medicines VALUES (1, 'Paracetamol', 25.00, 'Pain Relief');
+INSERT INTO Medicines VALUES (2, 'Amoxicillin', 120.00, 'Antibiotic');
+INSERT INTO Medicines VALUES (3, 'Vitamin C', 60.00, 'Supplement');
+
+
+INSERT INTO Customers VALUES (201, 'Ravi', '9876543210', 'Hyderabad');
+INSERT INTO Customers VALUES (202, 'Sneha', '9123456780', 'Secunderabad');
+INSERT INTO Customers VALUES (203, 'Arjun', '9988776655', 'Ameerpet');
+
+
+INSERT INTO Sales VALUES (3001, 201, 1, 2, '2026-08-01');
+INSERT INTO Sales VALUES (3002, 202, 2, 1, '2026-08-02');
+INSERT INTO Sales VALUES (3003, 203, 3, 5, '2026-08-03');
+5. Sort result based on name
+
+
+SELECT * FROM Medicines ORDER BY Name;
+6. Use of WHERE with OR clause
+
+
+SELECT * FROM Customers WHERE City = 'Hyderabad' OR City = 'Ameerpet';
+7. Show first five records from any one table
+
+
+SELECT * FROM Sales LIMIT 5;
+8. Use of BETWEEN keyword
+
+
+SELECT * FROM Medicines WHERE Cost BETWEEN 20 AND 100;
+9. Logical use of GROUP BY clause
+
+
+SELECT CustomerID, COUNT(SaleID) AS TotalSales
+FROM Sales
+GROUP BY CustomerID;
+10. Use LEFT JOIN
+
+
+SELECT Customers.Name AS CustomerName, Sales.SaleID, Medicines.Name AS MedicineName
+FROM Customers
+LEFT JOIN Sales ON Customers.CustomerID = Sales.CustomerID
+LEFT JOIN Medicines ON Sales.MedicineID = Medicines.MedicineID;
+11. Create temporary table and remove permanently
+
+
+CREATE TEMPORARY TABLE TempStock (
+    TempID INT,
+    MedicineID INT,
+    Quantity INT
+);
+
+
+DROP TABLE TempStock;
+12. Create one procedure (with INPUT and OUTPUT parameter)
+
+
+DELIMITER //
+CREATE PROCEDURE GetCustomerSales(IN CustID INT, OUT TotalSales INT)
+BEGIN
+    SELECT COUNT(SaleID) INTO TotalSales
+    FROM Sales
+    WHERE CustomerID = CustID;
+END //
+DELIMITER ;
+
+
+
+
+CALL GetCustomerSales(201, @TotalSales);
+SELECT @TotalSales;
+13. Create one trigger (BEFORE UPDATE)
+
+
+DELIMITER //
+CREATE TRIGGER BeforeMedicineUpdate
+BEFORE UPDATE ON Medicines
+FOR EACH ROW
+BEGIN
+    IF NEW.Cost < 0 THEN
+        SET NEW.Cost = 0; -- Prevent negative cost
+    END IF;
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+MongoDB
+-----------
+Create Database in MongoDB for Medical Store(Like Wellness Forever) System. - 5 Marks
+
+
+1. Write the command for creating collection & for inserting documents in collections(1)
+2. Write  a command to list all from the result (1)
+3. Use the $or operator to find medicines based on multiple conditions (for example: price greater than 200 or category is 'Pain Relief')(1)
+4. Write a command to sort the result in descending order based on Medicine cost(1)
+5. Create an index on the name (of medicine) field. (1)
+
+
+1. Create collection & insert documents
+
+
+// Create collection
+db.createCollection("Medicines");
+
+
+// Insert documents
+db.Medicines.insertMany([
+  { MedicineID: 1, Name: "Paracetamol", Price: 50, Category: "Pain Relief" },
+  { MedicineID: 2, Name: "Amoxicillin", Price: 250, Category: "Antibiotic" },
+  { MedicineID: 3, Name: "Vitamin C", Price: 150, Category: "Supplement" }
+]);
+2. List all from the result
+
+
+db.Medicines.find({});
+3. Use $or operator (multiple conditions)
+
+
+db.Medicines.find({
+  $or: [
+    { Price: { $gt: 200 } },
+    { Category: "Pain Relief" }
+  ]
+});
+4. Sort result in descending order based on Medicine cost
+
+
+db.Medicines.find().sort({ Price: -1 });
+5. Create an index on medicine name field
+
+
+db.Medicines.createIndex({ Name: 1 });
